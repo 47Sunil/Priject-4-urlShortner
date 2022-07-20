@@ -1,6 +1,8 @@
 const shortid = require('shortid');
 // const validUrl = require('valid-url');
 const urlModel = require("../model/urlModel")
+const server = require("../index")
+
 
 
 // let linkCheck = /(https?:\/\/.*\.)/i
@@ -17,11 +19,13 @@ const createShortUrl = async function (req, res) {
         if (existingURL) return res.status(400).send({ status: false, message: "URL already exists" })
 
         // if (!validUrl.isUri(longUrl)) return res.status(400).send({ status: false, message: " Please enter valid URL" })
-        if (!linkCheck.test(longUrl)) return res.status(400).send({ status: false, message: "Invalid URL. Please enter valid URL" })
+       if (!linkCheck.test(longUrl)) return res.status(400).send({ status: false, message: "Invalid URL. Please enter valid URL" })
 
         const urlCode = shortid.generate(longUrl)
 
-        const shortUrl = "http://localhost:3000/"+ urlCode
+        let port = server.serverDetails.runningPort
+
+        const shortUrl = `http://localhost:${port}/${urlCode}`
 
         const data = { longUrl, shortUrl, urlCode }
 
@@ -52,7 +56,8 @@ const getUrl = async function (req, res) {
 
         if (!getData) return res.status(404).send({ status: false, message: "No data found with this urlCode" })
    
-        return res.status(302).send({ status: true, data: `Found. Redirecting to ${getData.longUrl}`})
+        //return res.status(302).send({ status: true, data: `Found. Redirecting to ${getData.longUrl}`})
+        return res.status(302).redirect(getData.longUrl)
 
     } catch (err) {
         return res.status(500).send({ status: false, error: err.message })

@@ -12,7 +12,7 @@ router.get("/:urlCode", getUrl)
 
 
 
-router.all("/*", function (req, res) {
+router.all("/**", function (req, res) {
     res.status(400).send({ status: false, message: "This URL is not valid" })
 })
 
