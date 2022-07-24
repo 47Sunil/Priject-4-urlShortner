@@ -1,7 +1,7 @@
 const shortid = require('shortid');
 const urlModel = require("../model/urlModel")
-//const server = require("../index")
 const redis = require("redis");
+var validUrl = require('valid-url')
 
 const { promisify } = require("util");
 
@@ -14,7 +14,7 @@ const redisClient = redis.createClient(
 redisClient.auth("K9OxQeQuWSr47H7f8z0iUEeSi4kuEy9Z", function (err) {
   if (err) throw err;
 });
-//redis-19418.c212.ap-south-1-1.ec2.cloud.redislabs.com:19418
+
 redisClient.on("connect", async function () {
   console.log("Connected to Redis..");
 });
@@ -24,8 +24,6 @@ const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
 
 
 
-
-let linkCheck = /^https?\:\/\/([a-zA-Z0-9]+\.)?[a-zA-Z0-9]+\.[a-zA-Z0-9]+\/?[\w\/\-\.\_\~\!\$\&\'\(\)\*\+\,\;\=\:\@\%]+?$/
 
 //-----------------------------------------------------------------------------------------------------------------------------
 
@@ -47,11 +45,12 @@ const createShortUrl = async function (req, res) {
         
         if (existingURL) return res.status(200).send({status:true,data:existingURL})
 
-        if (!linkCheck.test(longUrl)) return res.status(400).send({ status: false, message: "Invalid URL. Please enter valid URL" })
+        // if (!linkCheck.test(longUrl)) 
+        if (!validUrl.isUri(longUrl))
+        return res.status(400).send({ status: false, message: "Invalid URL. Please enter valid URL" })
 
         const urlCode = shortid.generate()
 
-       // let port = server.serverDetails.runningPort
 
         const shortUrl = `http://localhost:3000/${urlCode}`
 
